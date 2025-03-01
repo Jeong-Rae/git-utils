@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ "$#" -lt 2 ]; then
+    echo "Usage: git set-desc [target branch] [description]"
+    exit 1
+fi
+
+if [ "$1" = "." ]; then
+    TARGET_BRANCH=$(git symbolic-ref --short HEAD)
+else
+    TARGET_BRANCH="$1"
+fi
+
+if ! git show-ref --verify --quiet "refs/heads/${TARGET_BRANCH}"; then
+    echo "Error: Branch '${TARGET_BRANCH}' does not exist."
+    exit 1
+fi
+
+shift
+DESCRIPTION="$*"
+
+if ! git config "branch.${TARGET_BRANCH}.description" "$DESCRIPTION"; then
+    echo "Error: Failed to set description for branch '${TARGET_BRANCH}'."
+    exit 1
+fi
+
+echo "Description for branch '${TARGET_BRANCH}' set to: $DESCRIPTION"
